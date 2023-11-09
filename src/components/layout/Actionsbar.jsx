@@ -5,10 +5,10 @@ import FlexEnd from "../common/FlexEnd";
 import { useTheme } from "@emotion/react";
 import { search, starred } from "../../assets";
 
-function Actionsbar() {
+function Actionsbar({ newProdClick, searchProdClick, favProdClick }) {
   const theme = useTheme();
   return (
-    <FlexBetween>
+    <FlexBetween sx={{ marginTop: "20px" }}>
       {/* SEARCH CONTAINER */}
       <Box
         sx={{
@@ -28,6 +28,7 @@ function Actionsbar() {
           placeholder="Search for products"
         />
         <Button
+          onClick={searchProdClick}
           sx={{
             ...searchIconWrapperStyle,
             ...typographyStyle,
@@ -48,6 +49,7 @@ function Actionsbar() {
       <FlexEnd>
         <FlexBetween sx={{ gap: "12px" }}>
           <Button
+            onClick={newProdClick}
             sx={{
               ...productBtnStyle,
               ...typographyStyle,
@@ -61,15 +63,17 @@ function Actionsbar() {
           >
             New Product
           </Button>
-          <Box
-            component="img"
-            alt="starred"
-            src={starred}
-            sx={{
-              ...starredStyle,
-              border: `1px solid ${theme.palette.primary.main}`,
-            }}
-          />
+          <Button onClick={favProdClick}>
+            <Box
+              component="img"
+              alt="starred"
+              src={starred}
+              sx={{
+                ...starredStyle,
+                border: `1px solid ${theme.palette.primary.main}`,
+              }}
+            />
+          </Button>
         </FlexBetween>
       </FlexEnd>
     </FlexBetween>

@@ -57,10 +57,10 @@ const appBarStyle = {
   position: "static",
   background: "none",
   boxShadow: "none",
-  padding: "33px 59px 41px 0px ",
+  padding: "2vw 4vw 3vw 0", //"33px 59px 41px 0px ",
 };
 const typographyStyle = {
-  fontSize: "19px",
+  fontSize: "1vw", //"19px",
   fontWeight: 700,
   textAlign: "left",
   width: "64px",
