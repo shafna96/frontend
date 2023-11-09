@@ -1,12 +1,12 @@
 import React from "react";
 import { Layout } from "../components";
 
-const Products = () => {
+function FavProducts() {
   return (
     <div>
-      <Layout title={"products"} />
+      <Layout title={"favourite products"} />
     </div>
   );
-};
+}
 
-export default Products;
+export default FavProducts;
