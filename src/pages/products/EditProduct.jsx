@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Layout, ProductForm } from "../../components";
-import { useUpdateProductMutation, useGetProductsQuery } from "../../redux/api";
+import {
+  useUpdateProductMutation,
+  useGetProductByIdQuery,
+} from "../../redux/api";
 import { useParams } from "react-router-dom";
 
 function EditProduct() {
   const { productId } = useParams();
-  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
-  const { data: initialProductData, error } = useGetProductsQuery(productId);
 
+  const { data: productData } = useGetProductByIdQuery(productId);
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
   const [formData, setFormData] = useState({
     SKU: "",
     quantity: 0,
@@ -15,29 +18,38 @@ function EditProduct() {
     image: null,
     productDescription: "",
   });
-
+  console.log("data", productData);
   useEffect(() => {
-    if (initialProductData) {
+    if (productData) {
       setFormData({
-        SKU: initialProductData.SKU,
-        quantity: initialProductData.quantity,
-        productName: initialProductData.productName,
-        image: initialProductData.image,
-        productDescription: initialProductData.productDescription,
+        SKU: productData.SKU || "",
+        quantity: productData.quantity || 0,
+        productName: productData.productName || "",
+        image: productData.image || null,
+        productDescription: productData.productDescription || "",
       });
     }
-  }, [initialProductData]);
+  }, [productData]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+    const { name, value, files } = e.target;
 
-  const handleImageChange = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] });
+    if (name === "image" && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/")) {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: file,
+        }));
+      } else {
+        console.error("Please upload an image file");
+      }
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -45,15 +57,22 @@ function EditProduct() {
     if (isUpdating) {
       return;
     }
+
     try {
       const productData = new FormData();
-      for (const key in formData) {
-        productData.append(key, formData[key]);
-      }
-      await updateProduct({ productId, productData }).unwrap();
-      console.log("Product updated successfully");
+      Object.entries(formData).forEach(([key, value]) => {
+        productData.append(key, value);
+      });
+
+      const response = await updateProduct({
+        productId,
+        ...Object.fromEntries(productData),
+      }).unwrap();
+      console.log("Product updated successfully", response);
+      // Add logic after successful update (e.g., redirect)
     } catch (error) {
       console.error("Error updating product:", error);
+      // Handle the error, such as displaying an error message to the user
     }
   };
 
@@ -67,11 +86,10 @@ function EditProduct() {
         <ProductForm
           formData={formData}
           handleChange={handleChange}
-          handleImageChange={handleImageChange}
           handleSubmit={handleSubmit}
           buttonText="Update Product"
           isLoading={isUpdating}
-          error={error}
+          error={null}
         />
       </Layout>
     </div>

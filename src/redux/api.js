@@ -8,6 +8,9 @@ export const api = createApi({
     getProducts: build.query({
       query: () => "products",
     }),
+    getProductById: build.query({
+      query: (productId) => `products/${productId}`,
+    }),
     addProduct: build.mutation({
       query: (product) => ({
         url: "products",
@@ -33,6 +36,7 @@ export const api = createApi({
 
 export const {
   useGetProductsQuery,
+  useGetProductByIdQuery,
   useAddProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,

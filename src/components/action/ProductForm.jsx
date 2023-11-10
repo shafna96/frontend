@@ -56,37 +56,6 @@ function ProductForm({
             </Box>
           </FormControl>
         </Grid>
-        <Grid item xs={6}>
-          <FormControl fullWidth>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <label htmlFor="image">Product Images</label>
-                <input
-                  type="file"
-                  id="image"
-                  name="image"
-                  onChange={handleChange} // Handle file input changes
-                  inputProps={{ accept: "image/*" }}
-                  style={{ display: "none" }}
-                />
-                <label htmlFor="image">
-                  <Button variant="outlined" component="span" color="primary">
-                    Add Image
-                  </Button>
-                </label>
-              </Box>
-              {/* Display the preview of uploaded images */}
-              {formData.image && (
-                <img
-                  src={URL.createObjectURL(formData.image)}
-                  alt="Preview"
-                  style={{ width: "50px", height: "50px" }}
-                />
-              )}
-            </Box>
-          </FormControl>
-        </Grid>
-
         <Grid item xs={12}>
           <FormControl fullWidth>
             <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -100,6 +69,38 @@ function ProductForm({
                 onChange={handleChange}
                 fullWidth
               />
+            </Box>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={6}>
+          <FormControl fullWidth>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <label htmlFor="image">Product Images</label>
+                <input
+                  type="file"
+                  id="image"
+                  name="image"
+                  onChange={handleChange}
+                  inputProps={{ accept: "image/*" }}
+                  style={{ display: "none" }}
+                />
+                <label htmlFor="image">
+                  <Button variant="outlined" component="span" color="primary">
+                    Add Image
+                  </Button>
+                </label>
+              </Box>
+              {/* Display the preview of uploaded images */}
+              {formData.image instanceof Blob &&
+                formData.image.type.startsWith("image/") && (
+                  <img
+                    src={URL.createObjectURL(formData.image)}
+                    alt="Preview"
+                    style={{ width: "50px", height: "50px" }}
+                  />
+                )}
             </Box>
           </FormControl>
         </Grid>

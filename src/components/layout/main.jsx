@@ -53,7 +53,7 @@ function Layout({
           searchValue={searchValue}
           handleSearchSubmit={handleSearchSubmit}
         />
-        {children}
+        <Box sx={{ paddingY: "30px" }}>{children}</Box>
       </Box>
     </>
   );

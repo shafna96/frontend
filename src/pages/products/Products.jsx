@@ -69,14 +69,18 @@ const Products = () => {
     }
   }, [data, error, dispatch]);
 
-  const handleEdit = (productId) => {
+  const handleEdit = async (productId) => {
     console.log("Edit product with ID:", productId);
+
     const productToUpdate = products.find(
       (product) => product._id === productId
     );
 
     if (productToUpdate) {
-      navigate(`/edit-product/${productId}`); // Navigating to the EditProduct page
+      // Navigate to the EditProduct page and pass the product details as state
+      navigate(`/edit-product/${productId}`, {
+        state: { product: productToUpdate },
+      });
     } else {
       console.error("Product not found for editing");
     }
@@ -84,18 +88,17 @@ const Products = () => {
 
   const handleFavorite = async (productId, isFav) => {
     try {
-      // Use updateProductMutation to update both product and favorite status
-      await updateProductMutation({
+      const response = await updateProductMutation({
         productId,
-        isFav,
+        isFav: !isFav, // Toggling isFav value
       }).unwrap();
 
-      // Handle response or dispatch actions if needed
-      // dispatch(updateProductFavorite(response));
-      // console.log("Favorite status updated successfully", response);
+      // Assuming response.isFav represents the updated isFav status
+      console.log("Updated isFav status:", response.isFav);
+      // Handle this information in your UI or application state
     } catch (error) {
-      // Handle error
       console.error("Error updating favorite status:", error);
+      // Handle the error, e.g., display an error message
     }
   };
 
@@ -188,9 +191,12 @@ const Products = () => {
                         />
                       </Button>
                       <Button
-                        onClick={() =>
-                          handleFavorite(product._id, product.isFav)
-                        }
+                        onClick={() => {
+                          handleFavorite(product._id, product.isFav);
+                          console.log(
+                            `Product ID: ${product._id}, isFav: ${product.isFav}`
+                          );
+                        }}
                       >
                         <Box
                           component="img"

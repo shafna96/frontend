@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { seperator } from "../../assets";
 
-const ProductCard = ({ product, isLast }) => {
+const ProductCard = ({ product, isLast, totalResults }) => {
   const theme = useTheme();
   const { id, SKU, productName, productDescription } = product;
 
