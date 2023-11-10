@@ -19,7 +19,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/fav-products" element={<FavProducts />} />
           <Route path="/add-products" element={<AddProducts />} />
-          <Route path="/edit-product" element={<EditProduct />} />
+          <Route path="/edit-product/:productId" element={<EditProduct />} />
           <Route path="/search-products" element={<SearchProducts />} />
         </Routes>
       </ThemeProvider>

@@ -5,46 +5,57 @@ import FlexEnd from "../common/FlexEnd";
 import { useTheme } from "@emotion/react";
 import { search, starred } from "../../assets";
 
-function Actionsbar({ newProdClick, searchProdClick, favProdClick }) {
+function Actionsbar({
+  newProdClick,
+  searchProdClick,
+  favProdClick,
+  onSearchChange,
+  searchValue,
+  handleSearchSubmit,
+}) {
   const theme = useTheme();
   return (
     <FlexBetween sx={{ marginTop: "20px" }}>
       {/* SEARCH CONTAINER */}
-      <Box
-        sx={{
-          ...searchContainerStyle,
-          backgroundColor: theme.palette.background.main,
-        }}
-      >
-        <InputBase
+      <form onSubmit={handleSearchSubmit}>
+        <Box
           sx={{
-            ...inputBaseStyle,
-            "::placeholder": {
-              color: theme.palette.neutral.main,
-              fontSize: "19px",
-              fontWeight: 500,
-            },
+            ...searchContainerStyle,
+            backgroundColor: theme.palette.background.main,
           }}
-          placeholder="Search for products"
-        />
-        <Button
-          onClick={searchProdClick}
-          sx={{
-            ...searchIconWrapperStyle,
-            ...typographyStyle,
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.white.main,
-            "&:hover": {
-              backgroundColor: theme.palette.primary.main,
-              opacity: 0.5,
-            },
-          }}
-          startIcon={<Box component="img" alt="search" src={search} />}
         >
-          Search
-        </Button>
-      </Box>
-
+          <InputBase
+            sx={{
+              ...inputBaseStyle,
+              "::placeholder": {
+                color: theme.palette.neutral.main,
+                fontSize: "19px",
+                fontWeight: 500,
+              },
+            }}
+            onClick={searchProdClick}
+            placeholder="Search for products"
+            onChange={onSearchChange}
+            value={searchValue}
+          />
+          <Button
+            onClick={searchProdClick}
+            sx={{
+              ...searchIconWrapperStyle,
+              ...typographyStyle,
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.white.main,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.main,
+                opacity: 0.5,
+              },
+            }}
+            startIcon={<Box component="img" alt="search" src={search} />}
+          >
+            Search
+          </Button>
+        </Box>
+      </form>
       {/* NEW PRODUCT */}
       <FlexEnd>
         <FlexBetween sx={{ gap: "12px" }}>

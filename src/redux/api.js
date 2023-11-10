@@ -1,4 +1,5 @@
 // api.js
+
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({
@@ -15,10 +16,10 @@ export const api = createApi({
       }),
     }),
     updateProduct: build.mutation({
-      query: (productId, updatedProduct) => ({
+      query: ({ productId, ...productData }) => ({
         url: `products/${productId}`,
         method: "PUT",
-        body: updatedProduct,
+        body: productData,
       }),
     }),
     deleteProduct: build.mutation({

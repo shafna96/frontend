@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Layout } from "../../components";
+import { Layout, ProductForm } from "../../components";
 import { useUpdateProductMutation, useGetProductsQuery } from "../../redux/api";
-import {
-  Box,
-  Button,
-  FilledInput,
-  FormControl,
-  Typography,
-} from "@mui/material";
 import { useParams } from "react-router-dom";
 
 function EditProduct() {
@@ -19,13 +12,19 @@ function EditProduct() {
     SKU: "",
     quantity: 0,
     productName: "",
-    image: "",
+    image: null,
     productDescription: "",
   });
 
   useEffect(() => {
     if (initialProductData) {
-      setFormData(initialProductData); // Assuming the API response structure matches the form data
+      setFormData({
+        SKU: initialProductData.SKU,
+        quantity: initialProductData.quantity,
+        productName: initialProductData.productName,
+        image: initialProductData.image,
+        productDescription: initialProductData.productDescription,
+      });
     }
   }, [initialProductData]);
 
@@ -37,15 +36,22 @@ function EditProduct() {
     }));
   };
 
+  const handleImageChange = (e) => {
+    setFormData({ ...formData, image: e.target.files[0] });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isUpdating) {
       return;
     }
     try {
-      await updateProduct({ productId, ...formData }).unwrap();
+      const productData = new FormData();
+      for (const key in formData) {
+        productData.append(key, formData[key]);
+      }
+      await updateProduct({ productId, productData }).unwrap();
       console.log("Product updated successfully");
-      // You can add additional logic or redirect after updating the product
     } catch (error) {
       console.error("Error updating product:", error);
     }
@@ -58,63 +64,15 @@ function EditProduct() {
         breadcrumbs={true}
         secTitle={"update production"}
       >
-        <form onSubmit={handleSubmit}>
-          <Typography variant="h5" gutterBottom>
-            Update Product
-          </Typography>
-          <FormControl margin="normal" sx={{ display: "flex" }}>
-            <label htmlFor="SKU" sx={{ marginRight: "10px", width: "20%" }}>
-              SKU
-            </label>
-            <FilledInput
-              id="SKU"
-              name="SKU"
-              value={formData.SKU}
-              onChange={handleChange}
-              sx={{ width: "80%" }}
-            />
-          </FormControl>
-          <FilledInput
-            id="quantity"
-            name="quantity"
-            type="number"
-            value={formData.quantity}
-            onChange={handleChange}
-            fullWidth
-            placeholder="Quantity"
-          />
-          <FilledInput
-            id="productName"
-            name="productName"
-            value={formData.productName}
-            onChange={handleChange}
-            fullWidth
-            placeholder="Product Name"
-          />
-          <FilledInput
-            id="image"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            fullWidth
-            placeholder="Image URL"
-          />
-          <FilledInput
-            id="productDescription"
-            name="productDescription"
-            multiline
-            rows={4}
-            value={formData.productDescription}
-            onChange={handleChange}
-            fullWidth
-            placeholder="Product Description"
-          />
-          <Box mt={2}>
-            <Button type="submit" variant="contained" color="primary">
-              Update Product
-            </Button>
-          </Box>
-        </form>
+        <ProductForm
+          formData={formData}
+          handleChange={handleChange}
+          handleImageChange={handleImageChange}
+          handleSubmit={handleSubmit}
+          buttonText="Update Product"
+          isLoading={isUpdating}
+          error={error}
+        />
       </Layout>
     </div>
   );

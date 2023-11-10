@@ -1,4 +1,6 @@
-import React, { useEffect } from "react";
+// Products.jsx
+
+import React, { useEffect, useState } from "react";
 import { Layout } from "../../components";
 import {
   Box,
@@ -9,26 +11,57 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  useTheme,
 } from "@mui/material";
 
 import { useDispatch, useSelector } from "react-redux";
-import { deleteProduct, setProducts } from "../../redux/reducers/productSlice";
-import { useDeleteProductMutation, useGetProductsQuery } from "../../redux/api";
-import { deleteIcon, editIcon, starred } from "../../assets";
+import { setProducts } from "../../redux/reducers/productSlice";
+import {
+  useDeleteProductMutation,
+  useGetProductsQuery,
+  useUpdateProductMutation,
+} from "../../redux/api";
+import { deleteIcon, editIcon, starred, starredOutline } from "../../assets";
 import { useNavigate } from "react-router-dom";
+import DeletePopUp from "../../components/action/DeletePopUp";
 
 const Products = () => {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products);
   const { data, error } = useGetProductsQuery();
-  // const deleteProductMutation = useDeleteProductMutation();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-
+  const updateProductMutation = useUpdateProductMutation();
   const navigate = useNavigate();
+
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+
+  const openDeleteDialog = (productId) => {
+    setDeleteDialogOpen(true);
+    setSelectedProductId(productId);
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setSelectedProductId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedProductId) {
+      try {
+        console.log("Deleting product from API...");
+        await deleteProduct(selectedProductId).unwrap();
+        console.log("Product deleted from API.");
+        closeDeleteDialog();
+      } catch (error) {
+        console.error("Error deleting product:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     if (data) {
-      // Dispatch the setProducts action to update the Redux store
-      // const rowsWithId = data.map((row) => ({ ...row, id: row._id }));
       dispatch(setProducts(data));
     }
     if (error) {
@@ -37,23 +70,33 @@ const Products = () => {
   }, [data, error, dispatch]);
 
   const handleEdit = (productId) => {
-    // Implement the logic for editing a product
     console.log("Edit product with ID:", productId);
-    navigate("/edit-product");
-  };
+    const productToUpdate = products.find(
+      (product) => product._id === productId
+    );
 
-  const handleDelete = async (productId) => {
-    try {
-      console.log("Deleting product from API...");
-      await deleteProduct(productId).unwrap();
-      console.log("Product deleted from API.");
-    } catch (error) {
-      console.error("Error deleting product:", error);
+    if (productToUpdate) {
+      navigate(`/edit-product/${productId}`); // Navigating to the EditProduct page
+    } else {
+      console.error("Product not found for editing");
     }
   };
-  const handleFavorite = (productId) => {
-    // Implement the logic for marking a product as favorite
-    console.log("Favorite product with ID:", productId);
+
+  const handleFavorite = async (productId, isFav) => {
+    try {
+      // Use updateProductMutation to update both product and favorite status
+      await updateProductMutation({
+        productId,
+        isFav,
+      }).unwrap();
+
+      // Handle response or dispatch actions if needed
+      // dispatch(updateProductFavorite(response));
+      // console.log("Favorite status updated successfully", response);
+    } catch (error) {
+      // Handle error
+      console.error("Error updating favorite status:", error);
+    }
   };
 
   return (
@@ -64,29 +107,97 @@ const Products = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>SKU</TableCell>
-                  <TableCell>Image</TableCell>
-                  <TableCell>Product Name</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell />
+                  <TableCell
+                    sx={{
+                      ...tableHeadStyle,
+                      color: theme.palette.primary.main,
+                      width: "20%",
+                    }}
+                  >
+                    SKU
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      ...tableHeadStyle,
+                      color: theme.palette.primary.main,
+                      width: "15%",
+                    }}
+                  >
+                    Image
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      ...tableHeadStyle,
+                      color: theme.palette.primary.main,
+                      width: "25%",
+                    }}
+                  >
+                    Product Name
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      ...tableHeadStyle,
+                      color: theme.palette.primary.main,
+                      width: "15%",
+                    }}
+                  >
+                    Quantity
+                  </TableCell>
+                  <TableCell sx={{ width: "20%" }} />
                 </TableRow>
               </TableHead>
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product._id}>
-                    <TableCell>{product.SKU}</TableCell>
-                    <TableCell />
-                    <TableCell>{product.productName}</TableCell>
-                    <TableCell>{product.quantity}</TableCell>
+                    <TableCell sx={{ ...contentStyle, opacity: 0.5 }}>
+                      {product.SKU}
+                    </TableCell>
                     <TableCell>
-                      <Button onClick={() => handleDelete(product._id)}>
-                        <Box component="img" alt="starred" src={deleteIcon} />
+                      {product.image && (
+                        <img
+                          src={`http://localhost:5000/uploads/${product.image}`}
+                          alt={product.productName}
+                          style={{
+                            width: "66px",
+                            height: "66px",
+                            overflow: "hidden",
+                            borderRadius: "6px",
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell sx={contentStyle}>
+                      {product.productName}
+                    </TableCell>
+                    <TableCell sx={contentStyle}>{product.quantity}</TableCell>
+                    <TableCell>
+                      <Button onClick={() => openDeleteDialog(product._id)}>
+                        <Box
+                          component="img"
+                          alt="delete"
+                          src={deleteIcon}
+                          sx={iconStyle}
+                        />
                       </Button>
-                      <Button onClick={handleEdit}>
-                        <Box component="img" alt="starred" src={editIcon} />
+                      <Button onClick={() => handleEdit(product._id)}>
+                        <Box
+                          component="img"
+                          alt="edit"
+                          src={editIcon}
+                          sx={iconStyle}
+                        />
                       </Button>
-                      <Button onClick={handleFavorite}>
-                        <Box component="img" alt="starred" src={starred} />
+                      <Button
+                        onClick={() =>
+                          handleFavorite(product._id, product.isFav)
+                        }
+                      >
+                        <Box
+                          component="img"
+                          alt="starred"
+                          src={product.isFav ? starred : starredOutline}
+                          sx={iconStyle}
+                        />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -95,9 +206,27 @@ const Products = () => {
             </Table>
           </TableContainer>
         </Box>
+        {/* Confirmation Dialog */}
+        <DeletePopUp
+          open={isDeleteDialogOpen}
+          onClose={closeDeleteDialog}
+          onConfirm={handleConfirmDelete}
+        />
       </Layout>
     </div>
   );
 };
 
 export default Products;
+
+const tableHeadStyle = {
+  fontWeight: 700,
+  fontSize: "19px",
+};
+
+const contentStyle = {
+  fontWeight: 500,
+  fontSize: "19px",
+};
+
+const iconStyle = { width: "25px", height: "25px" };

@@ -7,7 +7,9 @@ import starred from "./starred.svg";
 import seperator from "./dashicons_arrow-right-alt2.svg";
 import deleteIcon from "./delete-icon.svg";
 import editIcon from "./edit-icon.svg";
-import starIcon from "./star.svg";
+import starredOutline from "./star.svg";
+import alertIcon from "./alert.svg";
+import closeIcon from "./entypo_cross.svg";
 export {
   alert,
   arrowDown,
@@ -18,5 +20,7 @@ export {
   seperator,
   deleteIcon,
   editIcon,
-  starIcon,
+  starredOutline,
+  alertIcon,
+  closeIcon,
 };
